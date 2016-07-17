@@ -5,10 +5,13 @@ var jwt = require('jsonwebtoken');
 var User = require('../models/User.js');
 
 var router = express.Router();
+var userRoute = router.route('/users/:_id');
+var userEditingRoute = router.route('/users/:_id/edit');
 
 function createToken (res, user, secret) {
   var token = jwt.sign(user, secret, { expiresIn: 86400 });
   res.json({
+    user: user,
     success: true,
     message: 'token created',
     token: token
@@ -62,7 +65,6 @@ router.post('/signup', function(req, res, next) {
     newUser.save(next);
     createToken(res, newUser, config.secret);
   });
-
 });
 
 router.use( function (req, res, next) {
@@ -85,13 +87,61 @@ router.use( function (req, res, next) {
   }
 });
 
-router.get("/logout", function(req, res) {
+router.post("/logout", function(req, res) {
   res.redirect("/");
 });
 
 router.get('/users', function (req, res) {
   User.find({}, function (err, users) {
     res.json(users);
+  });
+});
+
+userRoute.get( function(req, res) {
+  User.findById(req.params._id, function(err, user) {
+    if (err) res.send(err);
+    res.json(user);
+  });
+});
+
+userEditingRoute.put( function(req, res) {
+  var password = req.body.password;
+  var confirmedPassword = req.body.confirmedPassword;
+  var newPassword = req.body.newPassword;
+  var newUsername = req.body.newUsername;
+
+  User.findById(req.params._id, function (err, user) {
+    if(err) res.send(err);
+    if(!user) return res.redirect('/api/users');
+    else {
+      user.checkPassword(password, function (err, isMatch) {
+        if(err) res.send(err);
+        if (isMatch) {
+          user.username = newUsername || user.username;
+          if (confirmedPassword !== newPassword) res.redirect('/api/users');
+          user.password = newPassword;
+
+          user.save(function(err) {
+            if(err) res.send(err);
+            res.json(user);
+          });
+          createToken(res, user, config.secret);
+        } else {
+          res.json({
+            success: false,
+            message: 'Invalid password!',
+          });
+        }
+      });
+    }
+  });
+});
+
+userRoute.delete(function(req, res) {
+  var password = req.body.password;
+  User.findByIdAndRemove(req.params._id, function(err) {
+    if(err) res.send(err);
+    res.json({ message: 'user removed successfully' });
   });
 });
 
