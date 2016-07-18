@@ -2,10 +2,20 @@ var bcrypt = require('bcrypt-nodejs');
 var config = require('../config/config.js');
 var mongoose = require('mongoose');
 
+var eventSchema = new mongoose.Schema({
+  id: {type: String, required: true, unique: true},
+  title: { type: String, required: true, trim: true },
+  text: { type: String, trim: true },
+  date: { type: Date, required: true },
+  startTime: { type: Date },
+  endTime: { type: Date }
+});
+
 var userSchema = mongoose.Schema({
-  username: { type: String, required: true, unique: true },
+  username: { type: String, required: true, unique: true, trim: true },
   password: { type: String, required: true},
-  createAt: { type: Date, default: Date.now }
+  createAt: { type: Date, default: Date.now },
+  events: [eventSchema]
 });
 
 var noop = function() {};

@@ -1,11 +1,12 @@
 var config = require('../config/config.js');
 var express = require('express');
 var jwt = require('jsonwebtoken');
-
+var _ = require('lodash');
 var User = require('../models/User.js');
 
 var router = express.Router();
 var userRoute = router.route('/users/:_id');
+var userEventsRoute = router.route('/users/:_id/events');
 var userEditingRoute = router.route('/users/:_id/edit');
 
 function createToken (res, user, secret) {
@@ -29,21 +30,17 @@ router.post('/signin', function (req, res, next) {
   User.findOne({username: username}, function (err, user) {
     if(err) return next(err);
     if(!user) return next(err);
-    else {
-
-      user.checkPassword(password, function (err, isMatch) {
-        if(err) next(err);
-        if (isMatch) {
-          createToken(res, user, config.secret);
-        } else {
-          res.json({
-            success: false,
-            message: 'Invalid password!',
-          });
-        }
-      });
-
-    }
+    user.checkPassword(password, function (err, isMatch) {
+      if(err) next(err);
+      if (isMatch) {
+        createToken(res, user, config.secret);
+      } else {
+        res.json({
+          success: false,
+          message: 'Invalid password!',
+        });
+      }
+    });
   });
 });
 
@@ -71,7 +68,6 @@ router.use( function (req, res, next) {
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
   if (token) {
-
     jwt.verify(token, config.secret, function(err, decoded) {
       if (err) return res.json({ success: false, message: 'failed to authenticate token.' });
       else {
@@ -104,6 +100,13 @@ userRoute.get( function(req, res) {
   });
 });
 
+userEventsRoute.get( function(req, res) {
+  User.findById(req.params._id, function(err, user) {
+    if (err) res.send(err);
+    res.json(user.events);
+  });
+});
+
 userEditingRoute.put( function(req, res) {
   var password = req.body.password;
   var confirmedPassword = req.body.confirmedPassword;
@@ -113,27 +116,53 @@ userEditingRoute.put( function(req, res) {
   User.findById(req.params._id, function (err, user) {
     if(err) res.send(err);
     if(!user) return res.redirect('/api/users');
-    else {
-      user.checkPassword(password, function (err, isMatch) {
-        if(err) res.send(err);
-        if (isMatch) {
-          user.username = newUsername || user.username;
-          if (confirmedPassword !== newPassword) res.redirect('/api/users');
-          user.password = newPassword;
+    user.checkPassword(password, function (err, isMatch) {
+      if(err) res.send(err);
+      if (isMatch) {
+        user.username = newUsername || user.username;
+        if (confirmedPassword !== newPassword) res.redirect('/api/users');
+        user.password = newPassword;
 
-          user.save(function(err) {
-            if(err) res.send(err);
-            res.json(user);
-          });
-          createToken(res, user, config.secret);
-        } else {
-          res.json({
-            success: false,
-            message: 'Invalid password!',
-          });
-        }
+        user.save(function(err) {
+          if(err) res.send(err);
+          res.json(user);
+        });
+ //       createToken(res, user, config.secret);
+      } else {
+        res.json({
+          success: false,
+          message: 'Invalid password!',
+        });
+      }
+    });
+  });
+});
+
+userRoute.put( function(req, res) {
+  var targetEvent = req.body.event;
+  var action = req.body.action;
+
+  User.findById(req.params._id, function (err, user) {
+    if(err) res.send(err);
+    if(!user) return res.redirect('/api/users');
+    if (action === 'ADD') user.events.push(targetEvent);
+    if (action === 'DELETE') {
+      user.events = _.filter(user.events, function(event) {
+        return event.id !== targetEvent.id;
       });
     }
+    if(action === 'SAVE') {
+      user.events = _.filter(user.events, function(event) {
+        return event.id !== targetEvent.id;
+      });
+      user.events.push(targetEvent);
+    }
+
+    user.save(function(err) {
+      if(err) res.send(err);
+      res.json(user);
+    });
+
   });
 });
 
