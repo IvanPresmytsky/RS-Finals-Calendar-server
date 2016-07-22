@@ -1,31 +1,34 @@
-var bodyParser = require('body-parser');
-var config = require('../config/config.js');
-var express = require('express');
-var mongoose = require('mongoose');
-var morgan = require('morgan');
+"use strict";
 
-var router = require('./router.js');
+const bodyParser = require('body-parser');
+const config = require('./config/config.js');
+const express = require('express');
+const mongoose = require('mongoose');
+const morgan = require('morgan');
+const router = require('./routes/router.js');
 
-var app = express();
+const app = express();
+
+app.use(morgan('dev'));
 
 mongoose.connect(config.db);
 
-var db = mongoose.connection;
+const db = mongoose.connection;
 
-if(!db) console.log('db connection error');
+if (!db) {
+  return process.exit(1);
+}
 
 app.set('port', config.port);
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use(morgan('dev'));
-
 app.use('/api', router);
 
-app.get('/', function(req, res) {
-  res.send('Hello! The API is at http://localhost:' + app.get('port') + '/api');
+app.get('/', (req, res) => {
+  return res.json({message: 'Hello! The API is at http://localhost:' + app.get('port') + '/api'});
 });
 
-app.listen(app.get('port'), function() {
+app.listen(app.get('port'), () => {
   console.log('Server started on port ' + app.get('port'));
 });
