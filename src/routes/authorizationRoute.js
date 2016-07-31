@@ -15,11 +15,13 @@ function createToken (res, user, secret) {
 }
 
 function signIn (req, res, next) {
+  console.log('sign in started');
   let username = req.body.username;
   let password = req.body.password;
-
+  console.log(req.body);
   User.findOne({username: username}, (err, user) => {
     if (err) {
+      console.log(err);
       return next(err);
     }
     if (!user) {
@@ -27,9 +29,11 @@ function signIn (req, res, next) {
     }
     user.checkPassword(password, (err, isMatch) => {
       if (err) {
+        console.log('authorization error' + err);
         next(err);
       }
       if (isMatch) {
+        console.log('authorization is successfull');
         createToken(res, user, secret);
       } else {
         return res.status(401).json({
@@ -43,6 +47,7 @@ function signIn (req, res, next) {
 function signUp (req, res, next) {
   let username = req.body.username;
   let password = req.body.password;
+  let confirmedPassword = req.body.confirmedPassword;
 
   User.findOne({username: username}, (err, user) => {
     if (err) {
@@ -50,6 +55,11 @@ function signUp (req, res, next) {
     }
     if (user) {
       return res.redirect('/');
+    }
+    if (password !== confirmedPassword) {
+      return res.json({
+        message: 'confirmed password is not equal to password!'
+      }).redirect('/');
     }
     let newUser = new User({
       username: username,
@@ -62,11 +72,10 @@ function signUp (req, res, next) {
 }
 
 function signOut (req, res) {
-  //res.
   return res.status(200).json({
     message: 'token deleted',
     token: null
-  }).redirect("/");
+  }).redirect('/');
 }
 
 let authorizationRoute = (router) => {

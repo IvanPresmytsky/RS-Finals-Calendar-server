@@ -41,11 +41,12 @@ function addEvent (req, res) {
       return res.status(404).json(err);
     }
     user.events.push(addedEvent);
-    user.save((err) => {
+    user.save((err, data) => {
       if (err) {
+        console.log(err);
         return res.json(err);
       }
-      return res.status(201).json({message: 'event added successfully', event: addedEvent});
+      return res.status(201).json({message: 'event added successfully', event: data.events[data.events.length -1]});
     });
   });
 }
@@ -72,7 +73,7 @@ function changeEvent (req, res) {
     if (err) {
       return res.status(404).json(err);
     }
-    let changedEvent = _.find(user.events, (event) =>{
+    let changedEvent = _.find(user.events, (event) => { 
       return event.id === req.params.id;
     });
 
@@ -86,7 +87,7 @@ function changeEvent (req, res) {
       if (err) {
         return res.json(err);
       }
-      return res.status(201).json({message: 'event saved successfully', event: changedEvent});
+      return res.status(201).json({message: 'event saved successfully'});
     });
   });
 }

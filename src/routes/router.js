@@ -32,13 +32,21 @@ function verifyToken (req, res, next) {
   }
 }
 
+router.use(function(req, res, next) {
+  console.log('preflight request');
+  res.status(200).header('Access-Control-Allow-Origin', '*');
+  res.status(200).header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.status(200).header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE');
+  next();
+});
+
 router.use((req, res, next) => {
   authorizationRoute(router);
   next();
 });
-
+/*
 router.use(verifyToken);
-
+*/
 router.get('/users', (req, res) => {
   User.find({}, (err, users) => {
     if(err) {
