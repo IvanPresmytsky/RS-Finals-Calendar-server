@@ -29,12 +29,16 @@ function getEvent (req, res) {
 function addEvent (req, res) {
 
   let addedEvent = {
-    title: req.body.title,
-    text: req.body.text,
-    date: req.body.date,
-    startTime: req.body.startTime,
-    eventEndTime: req.body.endTime
+    title: req.body.event.title,
+    text: req.body.event.text,
+    date: req.body.event.date,
+    startTime: req.body.event.startTime,
+    eventEndTime: req.body.event.endTime
   }
+
+  let token = req.body.token;
+
+  console.log(token);
 
   User.findById(req.params._id, (err, user) => {
     if (err) {

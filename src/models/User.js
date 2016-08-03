@@ -11,14 +11,13 @@ const userSchema = mongoose.Schema({
   events: [eventSchema]
 });
 
-const noop = () => {};
+const noop = function () {};
 
-userSchema.pre('save', (done) => {
- // console.log(userSchema);
-  //if (!this.isModified('password')) {
-  //  return done();
- // }
-
+userSchema.pre('save', function (done) {
+  console.log(this);
+  if (!this.isModified('password')) {
+    return done();
+  }
   bcrypt.genSalt(config.salt, (err, salt) => {
     if (err) {
       return done(err);
@@ -27,6 +26,8 @@ userSchema.pre('save', (done) => {
       if (err) {
         return done(err);
       }
+      console.log(this.password);
+      console.log(hashedPassword);
       this.password = hashedPassword;
       done();
     });
@@ -34,7 +35,11 @@ userSchema.pre('save', (done) => {
 });
 
 userSchema.methods.checkPassword = function (guess, done) {
+  console.log(this.password);
+  console.log(guess);
   bcrypt.compare(guess, this.password, (err, isMatch) => {
+    console.log(isMatch);
+    console.log(err);
     done(err, isMatch);
   });
 };
