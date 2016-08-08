@@ -1,24 +1,12 @@
 "use strict";
 const config = require('../config/config.js');
-const secret = require('../../secret/secret.js');
+const createToken = require('../utils/createToken.js');
 const User = require('../models/User.js');
-const jwt = require('jsonwebtoken');
-
-
-function createToken (res, user, secret) {
-  let token = jwt.sign(user, secret, { expiresIn: 86400 });
-  return res.status(201).json({
-    user: user,
-    message: 'token created',
-    token: token
-  });
-}
 
 function signIn (req, res, next) {
-  console.log('sign in started');
   let username = req.body.username;
   let password = req.body.password;
-  console.log(req.body);
+
   User.findOne({username: username}, (err, user) => {
     if (err) {
       console.log(err);
@@ -33,7 +21,6 @@ function signIn (req, res, next) {
         next(err);
       }
       if (isMatch) {
-        console.log('authorization is successfull');
         createToken(res, user, secret);
       } else {
         return res.status(401).json({
@@ -65,7 +52,6 @@ function signUp (req, res, next) {
       username: username,
       password: password
     });
-
     newUser.save(next);
     createToken(res, newUser, secret);
   });
@@ -73,8 +59,7 @@ function signUp (req, res, next) {
 
 function signOut (req, res) {
   return res.status(200).json({
-    message: 'token deleted',
-    token: null
+    message: 'token deleted'
   }).redirect('/');
 }
 

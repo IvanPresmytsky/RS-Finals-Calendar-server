@@ -1,8 +1,10 @@
 "use strict";
 const _ = require('lodash');
 const User = require('../models/User.js');
+const verifyToken = require('../utils/verifyToken.js');
 
 function getEvents (req, res) {
+  verifyToken(req, res);
   User.findById(req.params._id, (err, user) => {
     if (err) {
       return res.status(404).json(err);
@@ -12,7 +14,7 @@ function getEvents (req, res) {
 }
 
 function getEvent (req, res) {
-
+  verifyToken(req, res);
   User.findById(req.params._id, (err, user) => {
     if (err) {
       return res.status(404).json(err);
@@ -27,6 +29,7 @@ function getEvent (req, res) {
 }
 
 function addEvent (req, res) {
+  verifyToken(req, res);
 
   let addedEvent = {
     title: req.body.event.title,
@@ -35,10 +38,6 @@ function addEvent (req, res) {
     startTime: req.body.event.startTime,
     eventEndTime: req.body.event.endTime
   }
-
-  let token = req.body.token;
-
-  console.log(token);
 
   User.findById(req.params._id, (err, user) => {
     if (err) {
@@ -56,6 +55,8 @@ function addEvent (req, res) {
 }
 
 function deleteEvent (req, res) {
+  verifyToken(req, res);
+
   User.findById(req.params._id, (err, user) => {
     if (err) {
       return res.status(404).json(err);
@@ -73,6 +74,8 @@ function deleteEvent (req, res) {
 }
 
 function changeEvent (req, res) {
+  verifyToken(req, res);
+
   User.findById(req.params._id, (err, user) => {
     if (err) {
       return res.status(404).json(err);
@@ -81,11 +84,11 @@ function changeEvent (req, res) {
       return event.id === req.params.id;
     });
 
-    changedEvent.title = req.body.title;
-    changedEvent.text = req.body.text;
-    changedEvent.date = req.body.date;
-    changedEvent.startTime = req.body.startTime;
-    changedEvent.eventEndTime = req.body.endTime;
+    changedEvent.title = req.body.event.title;
+    changedEvent.text = req.body.event.text;
+    changedEvent.date = req.body.event.date;
+    changedEvent.startTime = req.body.event.startTime;
+    changedEvent.eventEndTime = req.body.event.endTime;
 
     user.save((err) => {
       if (err) {
