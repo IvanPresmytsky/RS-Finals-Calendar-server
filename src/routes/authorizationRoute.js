@@ -3,25 +3,23 @@ const config = require('../config/config.js');
 const createToken = require('../utils/createToken.js');
 const User = require('../models/User.js');
 
-function signIn (req, res, next) {
+function signIn (req, res) {
   let username = req.body.username;
   let password = req.body.password;
 
   User.findOne({username: username}, (err, user) => {
-    if (err) {
-      console.log(err);
-      return next(err);
+    if(!user) {
+      return res.status(404).json({message: 'this user is not exist'});
     }
-    if (!user) {
-      return next(err);
+    if (err) {
+      return res.status(404).json({message: 'this user is not exist'});
     }
     user.checkPassword(password, (err, isMatch) => {
       if (err) {
-        console.log('authorization error' + err);
-        next(err);
+        return res.status(401).json({message: 'invalid password!!!'});
       }
       if (isMatch) {
-        createToken(res, user, secret);
+        createToken(res, user);
       } else {
         return res.status(401).json({
           message: 'Invalid password!',
@@ -31,29 +29,35 @@ function signIn (req, res, next) {
   });
 }
 
-function signUp (req, res, next) {
+function signUp (req, res) {
   let username = req.body.username;
   let password = req.body.password;
-  let confirmedPassword = req.body.confirmedPassword;
 
   User.findOne({username: username}, (err, user) => {
     if (err) {
-      return next(err);
+      return res.json({err: err});
     }
     if (user) {
-      return res.redirect('/');
-    }
-    if (password !== confirmedPassword) {
-      return res.json({
-        message: 'confirmed password is not equal to password!'
-      }).redirect('/');
+      return res.status(300).json({message: 'this user is already exist'});
     }
     let newUser = new User({
       username: username,
-      password: password
+      password: password,
+      events: [{
+        title: 'hui',
+        date: '2016-08-01',
+        _id: [ObjectID]
+      }]
     });
-    newUser.save(next);
-    createToken(res, newUser, secret);
+    newUser.save( (err) => {
+      if (err) {
+        console.log('**********************');
+        console.log(err);
+        console.log('**********************');
+        return res.json(err);
+      }
+      return res.status(201).json({message: 'user created successfully'});
+    });
   });
 }
 

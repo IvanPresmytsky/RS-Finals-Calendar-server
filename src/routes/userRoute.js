@@ -43,11 +43,16 @@ function deleteUser(req, res) {
 
 function editUser(req, res) {  
   let password = req.body.password;
-  let confirmedPassword = req.body.confirmedPassword;
   let newPassword = req.body.newPassword;
   let newUsername = req.body.newUsername;
 
   verifyToken(req, res);
+
+  User.findOne({username: newUsername}, (err, user) => {
+    if (user && (user._id != req.params._id)) {
+      return res.status(300).json({message: 'this user is already exist'});
+    }
+  });
 
   User.findById(req.params._id, (err, user) => {
     if (err) {
@@ -58,19 +63,15 @@ function editUser(req, res) {
         return res.status(401).json(err);
       }
       if (isMatch) {
+
         user.username = newUsername || user.username;
-
-        if (confirmedPassword !== newPassword) {
-          res.redirect('/');
-        }
-
         user.password = newPassword;
 
         user.save( (err) => {
           if (err) {
             return res.json(err);
           }
-          return res.status(200).json(user);
+          return res.status(200).json({message: 'user edited successfully'});
         });
         
       } else {

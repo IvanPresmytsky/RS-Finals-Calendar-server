@@ -3,7 +3,7 @@ const secret = require('../../secret/secret.js');
 const jwt = require('jsonwebtoken');
 
 
-function createToken (res, user, secret) {
+function createToken (res, user) {
   let token = jwt.sign(user, secret, { expiresIn: 86400 });
   return res.status(201).json({
     user: user,
