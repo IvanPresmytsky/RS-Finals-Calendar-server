@@ -43,17 +43,11 @@ function signUp (req, res) {
     let newUser = new User({
       username: username,
       password: password,
-      events: [{
-        title: 'hui',
-        date: '2016-08-01',
-        _id: [ObjectID]
-      }]
+      events: []
     });
     newUser.save( (err) => {
       if (err) {
-        console.log('**********************');
         console.log(err);
-        console.log('**********************');
         return res.json(err);
       }
       return res.status(201).json({message: 'user created successfully'});

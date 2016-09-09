@@ -36,7 +36,7 @@ function addEvent (req, res) {
     text: req.body.event.text,
     date: req.body.event.date,
     startTime: req.body.event.startTime,
-    eventEndTime: req.body.event.endTime
+    endTime: req.body.event.endTime
   }
 
   User.findById(req.params._id, (err, user) => {

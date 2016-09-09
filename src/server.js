@@ -16,6 +16,7 @@ mongoose.connect(config.db);
 const db = mongoose.connection;
 
 if (!db) {
+  console.log('-----------------------------------------------------');
   return process.exit(1);
 }
 
