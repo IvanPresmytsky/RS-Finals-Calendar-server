@@ -22,6 +22,7 @@
     "jsonwebtoken": "^7.0.1",
     "lodash": "^4.13.1",
     "mongoose": "^4.5.3",
-    "morgan": "^1.7.0"
+    "morgan": "^1.7.0",
+    "pm2": "^1.1.3"
   }
 }

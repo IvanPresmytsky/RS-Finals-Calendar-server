@@ -1,5 +1,6 @@
 "use strict";
-const secret = require('../../secret/secret.js');
+//const secret = require('../../secret/secret.js');
+const secret = require('../secret/secret.js');
 const jwt = require('jsonwebtoken');
 
 

@@ -1,6 +1,7 @@
 "use strict";
 const jwt = require('jsonwebtoken');
-const secret = require('../../secret/secret.js');
+//const secret = require('../../secret/secret.js');
+const secret = require('../secret/secret.js');
 
 function verifyToken (req, res) {
   let token = req.body.token;
