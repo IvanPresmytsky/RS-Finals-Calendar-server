@@ -1,4 +1,4 @@
 // SECRET should be arbitrary string key
-const SECRET = null;
+const SECRET = 'null';
 
 module.exports = SECRET;

@@ -47,7 +47,7 @@ function signUp (req, res) {
     });
     newUser.save( (err) => {
       if (err) {
-        console.log(err);
+        console.error(err);
         return res.json(err);
       }
       return res.status(201).json({message: 'user created successfully'});

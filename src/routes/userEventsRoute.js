@@ -4,7 +4,6 @@ const User = require('../models/User.js');
 const verifyToken = require('../utils/verifyToken.js');
 
 function getEvents (req, res) {
-  verifyToken(req, res);
   User.findById(req.params._id, (err, user) => {
     if (err) {
       return res.status(404).json(err);
@@ -14,7 +13,6 @@ function getEvents (req, res) {
 }
 
 function getEvent (req, res) {
-  verifyToken(req, res);
   User.findById(req.params._id, (err, user) => {
     if (err) {
       return res.status(404).json(err);
@@ -29,7 +27,6 @@ function getEvent (req, res) {
 }
 
 function addEvent (req, res) {
-  verifyToken(req, res);
 
   let addedEvent = {
     title: req.body.event.title,
@@ -46,7 +43,7 @@ function addEvent (req, res) {
     user.events.push(addedEvent);
     user.save((err, data) => {
       if (err) {
-        console.log(err);
+        console.error(err);
         return res.json(err);
       }
       return res.status(201).json({message: 'event added successfully', event: data.events[data.events.length -1]});

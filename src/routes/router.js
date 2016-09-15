@@ -8,7 +8,6 @@ const userRoute = require('./userRoute');
 const router = express.Router();
 
 router.use(function(req, res, next) {
-  console.log('preflight request');
   res.status(200).header('Access-Control-Allow-Origin', '*');
   res.status(200).header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   res.status(200).header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE');
